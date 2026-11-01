@@ -1,0 +1,11 @@
+services:
+  app:
+    image: ito-http-echo-check:${CHECK_ID:-local}
+    build:
+      context: .
+      args:
+        BUILD_REVISION: ${BUILD_REVISION:-local-test}
+    environment:
+      ECHO_TEXT: cicd-ok-${CHECK_ID:-local}
+    ports:
+      - "127.0.0.1:18080:5678"

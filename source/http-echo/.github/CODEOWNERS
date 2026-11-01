@@ -1,0 +1,5 @@
+* @hashicorp/github-nomad-core @hashicorp/nomad-eng
+
+# release configuration
+/.release/                              @hashicorp/release-engineering
+/.github/workflows/build.yml            @hashicorp/release-engineering
