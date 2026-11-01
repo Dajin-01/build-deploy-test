@@ -65,6 +65,12 @@ docker compose -f compose.test.yaml -p ito-echo-local down
 
 ## GitHub Actions 연결
 
+Windows용 **HTTP Echo Build Deploy Check**도 그래프에 **build → deploy**로 표시됩니다.
+두 작업은 모두 `self-hosted`, `windows`, `internal-test` 라벨을 가진 러너에서 실행합니다.
+빌드한 이미지를 아티팩트로 전달하므로 같은 러너의 로컬 이미지에 의존하지 않습니다.
+러너가 여러 대라면 이미지 실행이 가능한 동일 CPU 아키텍처로 구성해야 하며,
+실제 배포 대상 컴퓨터가 선택되도록 러너 라벨을 구분하세요.
+
 1. 이 폴더의 **내용**을 자신의 테스트 전용 GitHub 저장소 루트에 올립니다.
    `.github` 숨김 폴더와 원본 `source/http-echo/LICENSE`도 포함합니다.
 2. 저장소의 Settings → Actions → Runners → New self-hosted runner에서
