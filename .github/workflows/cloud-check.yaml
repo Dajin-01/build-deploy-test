@@ -6,22 +6,24 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
+env:
+  COMPOSE_FILE: compose.test.yaml
+  COMPOSE_PROJECT_NAME: ito-echo-cloud-${{ github.run_id }}-${{ github.run_attempt }}
+  # Keep the image tag stable when only a failed deploy job is re-run.
+  CHECK_ID: cloud-${{ github.run_id }}
+  BUILD_REVISION: ${{ github.sha }}
+
 jobs:
-  verify:
+  build:
+    name: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    defaults:
-      run:
-        shell: bash
-    env:
-      COMPOSE_FILE: compose.test.yaml
-      COMPOSE_PROJECT_NAME: ito-echo-cloud-${{ github.run_id }}-${{ github.run_attempt }}
-      CHECK_ID: cloud-${{ github.run_id }}-${{ github.run_attempt }}
-      BUILD_REVISION: ${{ github.sha }}
-
     steps:
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v6
         with:
           persist-credentials: false
@@ -34,8 +36,42 @@ jobs:
       - name: Build source and run Go checks
         run: docker compose build
 
+      - name: Export Docker image
+        run: docker image save --output "$RUNNER_TEMP/http-echo-image.tar" "ito-http-echo-check:$CHECK_ID"
+
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: http-echo-image
+          path: ${{ runner.temp }}/http-echo-image.tar
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+          overwrite: true
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: http-echo-image
+          path: ${{ runner.temp }}
+
+      - name: Load built Docker image
+        run: docker image load --input "$RUNNER_TEMP/http-echo-image.tar"
+
       - name: Deploy test container
-        run: docker compose up -d --no-build --wait --wait-timeout 60
+        run: docker compose up -d --no-build --pull never --wait --wait-timeout 60
 
       - name: Wait for health endpoint
         run: |

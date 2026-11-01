@@ -29,6 +29,13 @@ Mac에서 이 저장소를 편집하고 push해도 됩니다. `cloud-check.yaml`
 GitHub가 제공하는 `ubuntu-latest` 러너에서 빌드·테스트 배포·HTTP 검증을 수행하므로
 현재 노트북에 self-hosted runner를 설치할 필요가 없습니다.
 
+Actions 그래프에는 **build → deploy** 두 작업이 표시됩니다.
+`build`에서 Go 검사와 이미지 빌드를 수행한 뒤 Docker 이미지를 아티팩트로 저장합니다.
+`deploy`는 `needs: build`로 연결되어 빌드 성공 후에만 실행하며, 다른 러너에서
+아티팩트를 받아 이미지를 로드하고 배포·HTTP 검증·정리를 수행합니다.
+배포 단계는 이미지를 다시 빌드하거나 레지스트리에서 가져오지 않습니다.
+이미지 아티팩트는 1일간 보관하며, 만료 후에는 전체 워크플로를 다시 실행하면 됩니다.
+
 이 실행은 Linux 컨테이너의 빌드와 앱 응답을 검증합니다. Windows의 Docker Desktop,
 PowerShell, 경로·권한 등 호스트 환경 검증은 나중에 Windows 컴퓨터를 연결하고
 기존 **HTTP Echo Build Deploy Check** 워크플로를 실행해 확인합니다.
