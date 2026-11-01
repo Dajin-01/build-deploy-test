@@ -37,3 +37,20 @@ Windows PowerShell 단계와 GitHub Actions 전체 실행은 아직 검증하지
 3. `workflow.yaml`을 실행하고 대상 커밋의 Actions 결과·로그 확인.
 
 GitHub 저장소 생성·업로드·러너 등록은 수행하지 않았습니다.
+
+## GitHub 호스팅 러너용 워크플로 추가 검증 — 2026-11-02 (한국 시간)
+
+`.github/workflows/cloud-check.yaml`을 추가했습니다. `ubuntu-latest`와 Bash를 사용하므로
+현재 작업 노트북의 OS나 Windows self-hosted runner 없이 수동 실행할 수 있습니다.
+
+- YAML을 파싱하고 모든 Bash 단계의 구문 검사를 통과했습니다.
+- 새 워크플로의 배포·상태 확인·HTTP 검증·로그·정리 명령을 현재 macOS의
+  Docker Linux 엔진에서 실행했습니다.
+- Dockerfile과 원본 소스는 변경하지 않아 앞서 빌드한 동일 이미지를 재사용했습니다.
+- 정상 응답과 빌드 버전이 맞으면 성공했습니다.
+- 기대하는 실행 식별값을 바꾸면 검증이 실패했습니다.
+- 기대하는 빌드 버전을 바꾸면 검증이 실패했습니다.
+- 검증 후 테스트 컨테이너와 네트워크를 정리했습니다.
+
+이 결과는 로컬에서 수행한 검증입니다. 새 워크플로의 GitHub Actions 실행과
+Windows 호스트 검증은 아직 수행하지 않았습니다.

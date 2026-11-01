@@ -1,7 +1,7 @@
-# Windows 내부 컴퓨터 CI/CD 검증 샘플
+# Docker CI/CD 검증 샘플
 
 HashiCorp의 작은 Go 웹 서버 `http-echo`를 실제 소스에서 빌드하고,
-Windows의 Docker Desktop에 테스트용 Linux 컨테이너로 배포합니다.
+GitHub의 Linux 러너 또는 Windows의 Docker Desktop에 테스트용 Linux 컨테이너로 배포합니다.
 이번 실행의 응답 문구와 빌드에 포함된 커밋을 확인한 후 컨테이너를 정리합니다.
 
 ## 구성
@@ -9,6 +9,7 @@ Windows의 Docker Desktop에 테스트용 Linux 컨테이너로 배포합니다.
 - `source/http-echo/`: 원본 오픈소스 소스와 MPL-2.0 라이선스.
 - `Dockerfile`: 컨테이너 안에서 Go 정적 검사, `go test`, 바이너리 빌드.
 - `compose.test.yaml`: 단일 컨테이너와 localhost 전용 테스트 포트 18080.
+- `.github/workflows/cloud-check.yaml`: Windows 컴퓨터 없이 GitHub의 Ubuntu 러너에서 실행할 수동 워크플로.
 - `.github/workflows/workflow.yaml`: Windows self-hosted runner에서 실행할 수동 워크플로.
 
 원본: https://github.com/hashicorp/http-echo
@@ -20,6 +21,20 @@ Windows의 Docker Desktop에 테스트용 Linux 컨테이너로 배포합니다.
 Go 기반 이미지는 `golang:1-alpine`이므로 빌드 시점의 1.x 이미지가 사용됩니다.
 원본에는 현재 Go 단위 테스트 파일이 없으며, `go test` 성공만으로 기능 검증을
 주장하지 않습니다. 실제 기능은 HTTP 응답과 빌드 버전으로 검증합니다.
+
+## Windows 컴퓨터 없이 GitHub에서 먼저 검증하기
+
+Mac에서 이 저장소를 편집하고 push해도 됩니다. `cloud-check.yaml`이 기본 브랜치에
+올라가면 Actions → **HTTP Echo Cloud Check** → Run workflow에서 실행합니다.
+GitHub가 제공하는 `ubuntu-latest` 러너에서 빌드·테스트 배포·HTTP 검증을 수행하므로
+현재 노트북에 self-hosted runner를 설치할 필요가 없습니다.
+
+이 실행은 Linux 컨테이너의 빌드와 앱 응답을 검증합니다. Windows의 Docker Desktop,
+PowerShell, 경로·권한 등 호스트 환경 검증은 나중에 Windows 컴퓨터를 연결하고
+기존 **HTTP Echo Build Deploy Check** 워크플로를 실행해 확인합니다.
+
+두 워크플로 모두 실행 중에만 컨테이너를 띄웁니다. 외부에 공개되는 상시 서비스나
+Windows 내부 컴퓨터에 대한 원격 배포는 구성하지 않습니다.
 
 ## Windows에서 먼저 실행해 보기
 
